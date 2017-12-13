@@ -4,7 +4,8 @@
 // [tips]    LTC: LQjSwZLigtgqHA3rE14yeRNbNNY2r3tXcA
 //
 var rp = require('request-promise');
-var szLimit = 500;
+var btcPrice = 16290.00;
+var genTxSize = 200;
 var avgCount = 10;
 var prevCount = 5;
 var blockuri = 'https://blockchain.info/rawblock/';
@@ -109,11 +110,13 @@ function blockinfo(hash) {
                 var tdc='\t'
             }
             
-            var sumSize = 0;
-            var sumFee = 0;
-            var swCount = 0;
+            block.sumSize = 0;
+            block.sumFee = 0;
+            block.swCount = 0;
+            block.avgCount = avgCount;
+            var i = 0;
             for(var i in txs) {
-                if(i >= avgCount) { break; }
+                if(i >= block.avgCount) { break; }
                 var tx = txs[i];
                 tx.segwit = (tx.segwit) ? true : false;
                 
@@ -127,24 +130,24 @@ function blockinfo(hash) {
                 for(var j in tx.out) {
                     if(tx.related) {break;}
                     var out = tx.out[j];
-                    var address = out.addr;
+                    var address = out.addr || 'na';
                     if(block.inputs.indexOf(address) >= 0) { tx.related = true; }
                 }
                 
                 if(tx.related) { 
-                    avgCount++;
+                    block.avgCount++;
                     continue;
                 }
                 
                 var exclude = (bSegwitOnly) ? !tx.segwit : tx.segwit;
                 if(exclude) { 
-                    avgCount++;
+                    block.avgCount++;
                     continue;
                 }
                 
-                sumFee  += tx.fee;
-                sumSize += tx.size;
-                swCount += (tx.segwit) ? 1 : 0;
+                block.sumFee  += tx.fee;
+                block.sumSize += tx.size;
+                block.swCount += (tx.segwit) ? 1 : 0;
                 if(printTxn) {
                     var msg = tdo + tx.size.toString() + tdc;
                     msg += tdo + tx.fee + tdc;
@@ -156,8 +159,8 @@ function blockinfo(hash) {
             }
             
             if(printBlk) {
-                var msg = tdo + Number(sumFee / sumSize).toFixed(2).toString() + tdc;
-                msg += tdo + swCount + tdc;
+                var msg = tdo + Number(block.sumFee / block.sumSize).toFixed(2).toString() + tdc;
+                msg += tdo + '$' + Number(block.sumFee / block.sumSize * genTxSize * btcPrice / 100000000).toFixed(2).toString() + tdc;
                 msg += tdo + Number(100.0 * segWits / txs.length).toFixed(2).toString() + "%" + tdc;
                 msg += tdo + printHash(block.hash, 'block') + tdc;
                 console.log(tro + msg + trc);
