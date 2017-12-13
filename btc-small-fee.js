@@ -9,12 +9,16 @@ var avgCount = 5;
 var prevCount = 2;
 var blockuri = 'https://blockchain.info/rawblock/';
 var bBBCode = false;
+var bMarkdown = true;
 var printTxn = true;
 var printBlk = false;
 
 function printHash(hash, type) {
     if(bBBCode) {
         return '[url=https://blockchain.info/'+type+'/'+hash+']'+hash+'[/url]';
+    }
+    else if(bMarkdown) {
+        return '['+hash+'](https://blockchain.info/'+type+'/'+hash+')';
     }
     else {
         return hash;
@@ -74,6 +78,16 @@ function blockinfo(hash) {
                 var trc='[/tr]'
                 var tdo='[td]'
                 var tdc='[/td]'
+            }
+            else if(bMarkdown) {
+                var tbo=''
+                var tbc=''
+                var tho=''
+                var thc=''
+                var tro='|'
+                var trc=''
+                var tdo=''
+                var tdc='|'
             }
             else {
                 var tbo=''
