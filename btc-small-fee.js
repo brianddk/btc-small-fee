@@ -5,9 +5,21 @@
 //
 var rp = require('request-promise');
 var szLimit = 500;
-var avgCount = 18;
-var prevCount = 10;
-var blockuri = 'https://blockchain.info/rawblock/'
+var avgCount = 5;
+var prevCount = 2;
+var blockuri = 'https://blockchain.info/rawblock/';
+var bBBCode = false;
+var printTxn = true;
+var printBlk = false;
+
+function printHash(hash, type) {
+    if(bBBCode) {
+        return '[url=https://blockchain.info/'+type+'/'+hash+']'+hash+'[/url]';
+    }
+    else {
+        return hash;
+    }
+} 
 
 function jsonReq(url) {
     return rp({
@@ -52,7 +64,28 @@ function blockinfo(hash) {
             txs.sort(function(a,b){
                 return a.fee - b.fee;
             });
-
+            
+            if(bBBCode) {
+                var tbo='[table]'
+                var tbc='[/table]'
+                var tho='[th]'
+                var thc='[/th]'
+                var tro='[tr]'
+                var trc='[/tr]'
+                var tdo='[td]'
+                var tdc='[/td]'
+            }
+            else {
+                var tbo=''
+                var tbc=''
+                var tho=''
+                var thc=''
+                var tro=''
+                var trc=''
+                var tdo=''
+                var tdc='\t'
+            }
+            
             var sumSize = 0;
             var sumFee = 0;
             var swCount = 0;
@@ -63,18 +96,22 @@ function blockinfo(hash) {
                 sumFee  += tx.fee;
                 sumSize += tx.size;
                 swCount += (tx.segwit) ? 1 : 0;
-                var msg = tx.size.toString();
-                msg += "\t" + tx.fee;
-                msg += "\t" + tx.segwit;
-                msg += "\t" + tx.hash;
-                console.log(msg);
+                if(printTxn) {
+                    var msg = tdo + tx.size.toString() + tdc;
+                    msg += tdo + tx.fee + tdc;
+                    msg += tdo + tx.segwit + tdc;
+                    msg += tdo + printHash(tx.hash, 'tx') + tdc;
+                    console.log(tro + msg + trc);
+                }
             }
             
-            var msg = Number(sumFee / sumSize).toFixed(2).toString();
-            msg += "\t" + swCount;
-            msg += "\t" + Number(100.0 * segWits / txs.length).toFixed(2).toString() + "%";
-            msg += "\t" + block.hash;
-            console.log(msg);
+            if(printBlk) {
+                var msg = tdo + Number(sumFee / sumSize).toFixed(2).toString() + tdc;
+                msg += tdo + swCount + tdc;
+                msg += tdo + Number(100.0 * segWits / txs.length).toFixed(2).toString() + "%" + tdc;
+                msg += tdo + printHash(block.hash, 'block') + tdc;
+                console.log(tro + msg + trc);
+            }
             
             if(prevCount--) {
                 return blockinfo(block.prev_block);    
