@@ -4,16 +4,32 @@
 // [tips]    LTC: LQjSwZLigtgqHA3rE14yeRNbNNY2r3tXcA
 //
 var rp = require('request-promise');
+var Promise = require('bluebird');
 var btcPrice = 16290.00;
 var genTxSize = 200;
 var avgCount = 10;
-var prevCount = 5;
+var prevCount = 6;
 var blockuri = 'https://blockchain.info/rawblock/';
+var latestblock = 'https://blockchain.info/latestblock';
 var bBBCode = false;
 var bMarkdown = false;
-var printTxn = false;
+var printTxn = true;
 var printBlk = true;
 var bSegwitOnly = true;
+var timestamp = Date.now();
+var msDelay = 20;
+
+function delay(ms) {
+    var now = Date.now();
+    ms -= now - timestamp;
+    timestamp = now;
+    if(ms <= 0) {
+        return Promise.resolve(true);
+    }
+    else {
+        return Promise.delay(ms);
+    }
+}
 
 function printHash(hash, type) {
     if(bBBCode) {
@@ -27,14 +43,19 @@ function printHash(hash, type) {
     }
 } 
 
-function jsonReq(url) {
-    return rp({
-        uri: url,
-        headers: {
-            'User-Agent': 'Request-Promise'
-        },
-        json: true
-    });
+function jsonReq(url, bDelay) {
+    var bDelay = (typeof bDelay !== 'undefined') ?  bDelay  : true;
+    ms = (bDelay) ? msDelay : 0;
+    return delay(ms)
+        .then(function(nothing) {
+            return rp({
+                uri: url,
+                headers: {
+                    'User-Agent': 'Request-Promise'
+                },
+                json: true
+            })
+        });
 } 
 
 function blockinfo(hash) {
@@ -175,7 +196,7 @@ function blockinfo(hash) {
         });
 }
 
-var latestblock = jsonReq('https://blockchain.info/latestblock')
+jsonReq(latestblock, false)
     .then(function(lastblockid){
         // return blockinfo('000000000000000000c4f5b25ab623106eac117c1f1218fd995b263cddf988ae');
         return blockinfo(lastblockid.hash);
@@ -192,6 +213,12 @@ var latestblock = jsonReq('https://blockchain.info/latestblock')
     });
 
 /*
+Note:
+
+BlockDate = new Date(block.received_time * 1000);
+hourPrevBD = new Date(BlockDate - 60*60*1000);
+btcPrice = getGDAXquote(hourPrevBD, BlockDate, 60*60).close;
+
 block.inputs
 block.outputs
 

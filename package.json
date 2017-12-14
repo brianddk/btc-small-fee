@@ -6,9 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/brianddk/btc-small-fee.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brianddk/btc-small-fee.git"
   },
   "keywords": [
     "npm"
@@ -16,6 +16,7 @@
   "author": "brianddk",
   "license": "Apache-2.0",
   "dependencies": {
+    "bluebird": "^3.5.1",
     "request": "^2.83.0",
     "request-promise": "^4.2.2"
   }
