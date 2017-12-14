@@ -74,3 +74,4 @@ This project is licensed under the [Apache 2.0](https://www.apache.org/licenses/
 ## Acknowledgments
 
 * Thanks to [blockchain.info](https://blockchain.info/) for providing an API
+* Might need [CORS for Chrome](https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?hl=en)
