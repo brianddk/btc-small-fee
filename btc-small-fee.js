@@ -5,19 +5,38 @@
 //
 var rp = require('request-promise');
 var Promise = require('bluebird');
+var isNode = require('detect-node');
 var btcPrice = 16290.00;
 var genTxSize = 200;
-var avgCount = 10;
-var prevCount = 6;
+var avgCount = 2;
+var prevCount = 1;
 var blockuri = 'https://blockchain.info/rawblock/';
 var latestblock = 'https://blockchain.info/latestblock';
 var bBBCode = false;
 var bMarkdown = false;
 var printTxn = true;
-var printBlk = true;
+var printBlk = false;
 var bSegwitOnly = true;
 var timestamp = Date.now();
-var msDelay = 20;
+var msDelay = 100;
+var initmsg = 'processing (or failing...)'
+var donemsg = 'done...'
+
+function log(msg) {
+    if (isNode) {
+        console.log(msg);
+    } else {
+        var pre = document.getElementById('preConsole');
+        var txt = pre.innerText;
+        if(msg === donemsg) {
+            txt = txt.replace(initmsg,donemsg)
+        }
+        else {
+            txt += "\n" + msg;
+        }
+        pre.innerText = txt;
+    }
+}
 
 function delay(ms) {
     var now = Date.now();
@@ -173,9 +192,8 @@ function blockinfo(hash) {
                     var msg = tdo + tx.size.toString() + tdc;
                     msg += tdo + tx.fee + tdc;
                     msg += tdo + tx.segwit + tdc;
-                    msg += tdo + tx.related + tdc;
                     msg += tdo + printHash(tx.hash, 'tx') + tdc;
-                    console.log(tro + msg + trc);
+                    log(tro + msg + trc);
                 }
             }
             
@@ -184,33 +202,45 @@ function blockinfo(hash) {
                 msg += tdo + '$' + Number(block.sumFee / block.sumSize * genTxSize * btcPrice / 100000000).toFixed(2).toString() + tdc;
                 msg += tdo + Number(100.0 * segWits / txs.length).toFixed(2).toString() + "%" + tdc;
                 msg += tdo + printHash(block.hash, 'block') + tdc;
-                console.log(tro + msg + trc);
+                log(tro + msg + trc);
             }
             
             if(prevCount--) {
                 return blockinfo(block.prev_block);    
             }
             else {
+                if (!isNode) { log(donemsg); }
                 return true;
             }
         });
 }
 
-jsonReq(latestblock, false)
-    .then(function(lastblockid){
-        // return blockinfo('000000000000000000c4f5b25ab623106eac117c1f1218fd995b263cddf988ae');
-        return blockinfo(lastblockid.hash);
-    })
-    .catch(function(ex){
-        ex.name = ex.name || 'NA';
-        ex.error = ex.error || 'NA';
-        ex.options = ex.options || {};
-        ex.options.uri = ex.options.uri || 'NA'
-        var msg = ex.name;
-        msg += "\n\t" + ex.error;
-        msg += "\n\t\t" + ex.options.uri;
-        console.log(msg);
-    });
+function main() {
+    if (!isNode) { log(initmsg); }
+    jsonReq(latestblock, false)
+        .then(function(lastblockid){
+            // return blockinfo('000000000000000000c4f5b25ab623106eac117c1f1218fd995b263cddf988ae');
+            return blockinfo(lastblockid.hash);
+        })
+        .catch(function(ex){
+            ex.name = ex.name || 'NA';
+            ex.error = ex.error || 'NA';
+            ex.options = ex.options || {};
+            ex.options.uri = ex.options.uri || 'NA'
+            var msg = ex.name;
+            msg += "\n\t" + ex.error;
+            msg += "\n\t\t" + ex.options.uri;
+            log(msg);
+        });    
+}
+
+if (isNode) {
+    main();
+}
+else
+{
+    window.main=main;
+}
 
 /*
 Note:

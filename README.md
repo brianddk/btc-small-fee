@@ -74,4 +74,5 @@ This project is licensed under the [Apache 2.0](https://www.apache.org/licenses/
 ## Acknowledgments
 
 * Thanks to [blockchain.info](https://blockchain.info/) for providing an API
+* Thanks to [PonyFoo](https://ponyfoo.com/) for their [browserify walkthrough](https://ponyfoo.com/articles/a-gentle-browserify-walkthrough)
 * Might need [CORS for Chrome](https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?hl=en)
