@@ -235,7 +235,37 @@ function main() {
 }
 
 if (isNode) {
-    main();
+    if(process.argv.length > 2) {
+        if(process.argv[2] === 'head') {
+            console.log(`
+                <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+                <html lang="en"> 
+                    <head>
+                        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+                        <title>btc-small-fees</title>
+                        <script type="text/javascript">            
+            `);
+        }
+        else if (process.argv[2] === 'foot') {
+            log(`
+                        </` + `script>
+                    </head>
+                    <body onload="main()">
+                        <p>Right Click, Hit "Inspect" then click on "Console".  You will need 
+                            <a 
+                                href="https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?hl=en"
+                            >CORs for Chrome</a>
+                            <div>
+                                <pre id="preConsole">
+                                </pre>
+                            </div>
+                        </p>
+                    </body>
+                </html>
+            `);
+        }
+    }
+    //main();
 }
 else
 {
