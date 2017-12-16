@@ -47,6 +47,13 @@ To run the report simply run `node btc-small-fee.js`
 node btc-small-fee.js
 ```
 
+Another method will be to generate the html file with the overloaded `npm test` (**hack**)
+
+```
+npm test
+chrome btc-small-fee.html
+```
+
 The report simply prints to the console.
 
 ## Built With
