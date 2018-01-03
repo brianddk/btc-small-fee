@@ -8,19 +8,21 @@ var Promise = require('bluebird');
 var isNode = require('detect-node');
 var btcPrice = 16290.00;
 var genTxSize = 200;
-var avgCount = 2;
-var prevCount = 1;
+var avgCount = 1;
+var prevCount = 20;
 var blockuri = 'https://blockchain.info/rawblock/';
 var latestblock = 'https://blockchain.info/latestblock';
 var bBBCode = false;
-var bMarkdown = false;
+var bMarkdown = true;
 var printTxn = true;
 var printBlk = false;
-var bSegwitOnly = true;
+var bSegwitOnly = false;
 var timestamp = Date.now();
-var msDelay = 100;
-var initmsg = 'processing (or failing...)'
-var donemsg = 'done...'
+var msDelay = 300;
+var initmsg = 'processing (or failing...)';
+var donemsg = 'done...';
+var entryPoint = 'btcSmallFee';
+var preId = 'preConsole';
 
 function log(msg) {
     if (isNode) {
@@ -116,7 +118,8 @@ function blockinfo(hash) {
                     
             txs.splice(cbIdx,1);
             txs.sort(function(a,b){
-                return a.fee - b.fee;
+                return a.fee - b.fee; //min
+                //return b.fee - a.fee; //max
             });
             
             if(bBBCode) {
@@ -237,39 +240,43 @@ function main() {
 if (isNode) {
     if(process.argv.length > 2) {
         if(process.argv[2] === 'head') {
-            console.log(`
-                <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-                <html lang="en"> 
-                    <head>
-                        <meta http-equiv="content-type" content="text/html; charset=utf-8">
-                        <title>btc-small-fees</title>
-                        <script type="text/javascript">            
-            `);
+            var msg = `
+                &lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
+                &lt;html lang="en"&gt; 
+                    &lt;head&gt;
+                        &lt;meta http-equiv="content-type" content="text/html; charset=utf-8"&gt;
+                        &lt;title&gt;btc-small-fees&lt;/title&gt;
+                        &lt;script type="text/javascript"&gt;            
+            `;
+            log(msg.replace(/&lt;/g, '<').replace(/&gt;/g,'>'));
         }
         else if (process.argv[2] === 'foot') {
-            log(`
-                        </` + `script>
-                    </head>
-                    <body onload="main()">
-                        <p>Right Click, Hit "Inspect" then click on "Console".  You will need 
-                            <a 
+            msg = `
+                        &lt;/script&gt;
+                    &lt;/head&gt;
+                    &lt;body onload="`+ entryPoint +`()"&gt;
+                        &lt;p&gt;The "pre" tag below should populate.  If it doesn't right click, hit "Inspect" then click on "Console".  You will need 
+                            &lt;a 
                                 href="https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?hl=en"
-                            >CORs for Chrome</a>
-                            <div>
-                                <pre id="preConsole">
-                                </pre>
-                            </div>
-                        </p>
-                    </body>
-                </html>
-            `);
+                            &gt;CORs for Chrome&lt;/a&gt;
+                            &lt;div&gt;
+                                &lt;pre id="`+ preId +`"&gt;
+                                &lt;/pre&gt;
+                            &lt;/div&gt;
+                        &lt;/p&gt;
+                    &lt;/body&gt;
+                &lt;/html&gt;
+            `;
+            log(msg.replace(/&lt;/g, '<').replace(/&gt;/g,'>'));            
         }
     }
-    //main();
+    else {
+        main();
+    }
 }
 else
 {
-    window.main=main;
+    window[entryPoint]=main;
 }
 
 /*

@@ -29,8 +29,10 @@ var printBlk = false;
 var bSegwitOnly = true;
 var timestamp = Date.now();
 var msDelay = 100;
-var initmsg = 'processing (or failing...)'
-var donemsg = 'done...'
+var initmsg = 'processing (or failing...)';
+var donemsg = 'done...';
+var entryPoint = 'btcSmallFee';
+var preId = 'preConsole';
 
 function log(msg) {
     if (isNode) {
@@ -247,39 +249,41 @@ function main() {
 if (isNode) {
     if(process.argv.length > 2) {
         if(process.argv[2] === 'head') {
-            console.log(`
-                <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-                <html lang="en"> 
-                    <head>
-                        <meta http-equiv="content-type" content="text/html; charset=utf-8">
-                        <title>btc-small-fees</title>
-                        <script type="text/javascript">            
-            `);
+            var msg = `
+                &lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
+                &lt;html lang="en"&gt; 
+                    &lt;head&gt;
+                        &lt;meta http-equiv="content-type" content="text/html; charset=utf-8"&gt;
+                        &lt;title&gt;btc-small-fees&lt;/title&gt;
+                        &lt;script type="text/javascript"&gt;            
+            `;
+            log(msg.replace(/&lt;/g, '<').replace(/&gt;/g,'>'));
         }
         else if (process.argv[2] === 'foot') {
-            log(`
-                        </` + `script>
-                    </head>
-                    <body onload="main()">
-                        <p>Right Click, Hit "Inspect" then click on "Console".  You will need 
-                            <a 
+            msg = `
+                        &lt;/script&gt;
+                    &lt;/head&gt;
+                    &lt;body onload="`+ entryPoint +`()"&gt;
+                        &lt;p&gt;The "pre" tag below should populate.  If it doesn't right click, hit "Inspect" then click on "Console".  You will need 
+                            &lt;a 
                                 href="https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?hl=en"
-                            >CORs for Chrome</a>
-                            <div>
-                                <pre id="preConsole">
-                                </pre>
-                            </div>
-                        </p>
-                    </body>
-                </html>
-            `);
+                            &gt;CORs for Chrome&lt;/a&gt;
+                            &lt;div&gt;
+                                &lt;pre id="`+ preId +`"&gt;
+                                &lt;/pre&gt;
+                            &lt;/div&gt;
+                        &lt;/p&gt;
+                    &lt;/body&gt;
+                &lt;/html&gt;
+            `;
+            log(msg.replace(/&lt;/g, '<').replace(/&gt;/g,'>'));            
         }
     }
     //main();
 }
 else
 {
-    window.main=main;
+    window[entryPoint]=main;
 }
 
 /*
@@ -75926,8 +75930,8 @@ function extend() {
 
                         </script>
                     </head>
-                    <body onload="main()">
-                        <p>Right Click, Hit "Inspect" then click on "Console".  You will need 
+                    <body onload="btcSmallFee()">
+                        <p>The "pre" tag below should populate.  If it doesn't right click, hit "Inspect" then click on "Console".  You will need 
                             <a 
                                 href="https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?hl=en"
                             >CORs for Chrome</a>
